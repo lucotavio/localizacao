@@ -25,15 +25,16 @@ public class LocalizacaoApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        //this.service.findByNomeLike("Porto%", Sort.by("habitantes")).forEach(System.out::println);
-       // Pageable pageable = PageRequest.of(2, 2);
-        //this.service.findByNomeLike("%%%%", pageable).forEach(System.out::println);
+       this.nomeEqual("Belo");
+    }
 
-
+    public void nomeEqual(String nome){
+        // service.nomeEqual("São Paulo").forEach(System.out::println);
+        //service.nomeLike("Porto").forEach(System.out::println);
         Cidade cidade = Cidade.builder()
-                .nome("porto")
-                .build();
-
-        this.service.filtroDinamico(cidade).forEach(System.out::println);
+                        .nome("")
+                                .habitantes(9_000_000L)
+                                        .build();
+        service.habitantesGreaterThanOrNomeLike(cidade).forEach(System.out::println);
     }
 }

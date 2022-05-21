@@ -2,8 +2,10 @@ package br.com.luciano.localizacao.service;
 
 import br.com.luciano.localizacao.domain.entity.Cidade;
 import br.com.luciano.localizacao.domain.repository.CidadeRepository;
+import br.com.luciano.localizacao.domain.repository.specs.CidadeSpecs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
@@ -68,12 +70,38 @@ public class CidadeService {
         return repository.findByNomeLike(nome, pageable);
     }
 
-    public List<Cidade> filtroDinamico(Cidade cidade){
-        ExampleMatcher matcher = ExampleMatcher.matching()
-                .withIgnoreCase("nome")
-                .withStringMatcher(ExampleMatcher.StringMatcher.STARTING);
-
-        Example<Cidade> cidadeExample = Example.of(cidade, matcher);
-        return repository.findAll(cidadeExample);
+    public List<Cidade> nomeEqual(String nome){
+        Specification<Cidade> specs = CidadeSpecs.nomeEqual(nome);
+        return this.repository.findAll(specs);
     }
+
+    public List<Cidade> nomeLike(String nome){
+        Specification<Cidade> specs = CidadeSpecs.nomeLike(nome);
+        return repository.findAll(specs);
+    }
+
+/*
+    public List<Cidade> habitantesGreaterThanOrNomeLike(String nome, Long habitantes){
+        Specification<Cidade> specs = CidadeSpecs.nomeLike(nome).or(CidadeSpecs.habitantesGreaterThan(habitantes));
+        return repository.findAll(specs);
+    }
+
+ */
+
+
+
+    public List<Cidade> habitantesGreaterThanOrNomeLike(Cidade cidade){
+        Specification<Cidade> specs = Specification.where((root, query, cb) -> cb.conjunction());
+
+        if(cidade.getNome() != null && !cidade.getNome().isEmpty()){
+            specs = specs.and(CidadeSpecs.nomeLike(cidade.getNome()));
+        }
+
+        if(cidade.getHabitantes() != null){
+            specs = specs.or(CidadeSpecs.habitantesGreaterThan(cidade.getHabitantes()));
+        }
+
+        return  repository.findAll(specs);
+    }
+
 }
